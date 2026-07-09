@@ -1,315 +1,48 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>代步車借出登記系統</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
-      background: #f3f6fb;
-      color: #1f2937;
-      line-height: 1.55;
-    }
-    .wrap { max-width: 520px; margin: 0 auto; padding: 14px 12px 36px; }
-    .card {
-      background: #fff;
-      border-radius: 20px;
-      padding: 22px 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
-    }
-    h1 {
-      font-size: 30px;
-      line-height: 1.18;
-      margin: 6px 0 8px;
-      letter-spacing: -1px;
-      color: #111827;
-      white-space: nowrap;
-    }
-    .sub { font-size: 19px; color: #6b7280; margin-bottom: 20px; }
-    label.title {
-      display: block;
-      font-size: 20px;
-      font-weight: 800;
-      margin: 16px 0 7px;
-    }
-    input, select {
-      width: 100%;
-      height: 54px;
-      border: 1.5px solid #d1d5db;
-      border-radius: 12px;
-      padding: 0 14px;
-      font-size: 20px;
-      background: #fff;
-      color: #111827;
-    }
-    .section-title { font-size: 20px; font-weight: 900; margin: 26px 0 12px; }
-    .terms { display: grid; gap: 10px; }
-    .term {
-      display: grid;
-      grid-template-columns: 30px 1fr;
-      gap: 8px;
-      align-items: start;
-      padding: 12px 10px;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      background: #fff;
-      font-size: 18px;
-      line-height: 1.55;
-    }
-    .term input { width: 24px; height: 24px; margin-top: 3px; }
-    .note { color: #6b7280; font-size: 17px; margin: 18px 0 10px; }
-    .upload {
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      height: 140px;
-      display: grid;
-      place-items: center;
-      color: #6b7280;
-      font-size: 19px;
-      text-align: center;
-      padding: 10px;
-      background:#fafafa;
-      cursor: pointer;
-      overflow: hidden;
-    }
-    .upload img { max-width: 100%; max-height: 100%; border-radius: 10px; }
-    #licenseFile { display:none; }
-    .sigbox {
-      border: 2px solid #2563eb;
-      border-radius: 12px;
-      width: 100%;
-      height: 170px;
-      background: #fff;
-      touch-action: none;
-    }
-    .sig-actions {
-      display:flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items:center;
-      margin: 6px 0 0;
-      color:#9ca3af;
-      font-size:16px;
-    }
-    .clear { border:0; background:transparent; color:#9ca3af; font-size:16px; text-decoration: underline; white-space:nowrap; }
-    .btn {
-      margin-top: 22px;
-      width:100%;
-      border:0;
-      border-radius:14px;
-      background:#2563eb;
-      color:white;
-      font-size:24px;
-      font-weight:900;
-      padding:16px 12px;
-      cursor:pointer;
-    }
-    .btn:disabled { background:#93c5fd; cursor:not-allowed; }
-    .result {
-      display:none;
-      margin-top:16px;
-      padding:14px;
-      border-radius:12px;
-      background:#ecfdf5;
-      color:#065f46;
-      font-size:18px;
-      font-weight:700;
-    }
-    .error {
-      display:none;
-      margin-top:16px;
-      padding:14px;
-      border-radius:12px;
-      background:#fef2f2;
-      color:#991b1b;
-      font-size:17px;
-      font-weight:700;
-    }
-    @media (max-width: 390px) {
-      h1 { font-size: 27px; }
-      .sub { font-size: 17px; }
-      label.title { font-size: 18px; }
-      input, select { font-size: 18px; height: 50px; }
-      .term { font-size: 16px; }
-      .btn { font-size: 21px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>代步車借出登記系統</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;background:#f3f6fb;color:#1f2937;line-height:1.55}.wrap{max-width:520px;margin:auto;padding:14px 12px 36px}.card{background:#fff;border-radius:20px;padding:22px 18px;box-shadow:0 8px 24px rgba(15,23,42,.08)}h1{font-size:30px;margin:6px 0 8px;white-space:nowrap}.sub{font-size:19px;color:#6b7280;margin-bottom:20px}label.title{display:block;font-size:20px;font-weight:800;margin:16px 0 7px}input,select{width:100%;height:54px;border:1.5px solid #d1d5db;border-radius:12px;padding:0 14px;font-size:20px;background:#fff}.section-title{font-size:20px;font-weight:900;margin:26px 0 12px}.terms{display:grid;gap:10px}.term{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:start;padding:12px 10px;border:1px solid #e5e7eb;border-radius:14px;font-size:18px}.term input{width:24px;height:24px;margin-top:3px}.note{color:#6b7280;font-size:17px;margin:18px 0 10px}.upload{border:2px dashed #d1d5db;border-radius:16px;height:140px;display:grid;place-items:center;color:#6b7280;font-size:19px;text-align:center;padding:10px;background:#fafafa;overflow:hidden}.upload img{max-width:100%;max-height:100%}#licenseFile{display:none}.sigbox{border:2px solid #2563eb;border-radius:12px;width:100%;height:170px;background:#fff;touch-action:none}.sig-actions{display:flex;justify-content:space-between;margin-top:6px;color:#9ca3af;font-size:16px}.clear{border:0;background:transparent;color:#9ca3af;text-decoration:underline}.btn{margin-top:22px;width:100%;border:0;border-radius:14px;background:#2563eb;color:#fff;font-size:24px;font-weight:900;padding:16px 12px}.btn:disabled{background:#93c5fd}.result,.error{display:none;margin-top:16px;padding:14px;border-radius:12px;font-size:18px;font-weight:700}.result{background:#ecfdf5;color:#065f46}.error{background:#fef2f2;color:#991b1b}@media(max-width:390px){h1{font-size:27px}.sub{font-size:17px}label.title{font-size:18px}input,select{font-size:18px;height:50px}.term{font-size:16px}.btn{font-size:21px}}
+</style>
 </head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <h1>代步車借出登記系統</h1>
-      <div class="sub">請確認資訊並完成登記</div>
-
-      <label class="title">登記日期</label>
-      <input id="date" type="date">
-
-      <label class="title">您的車牌號碼（原車）</label>
-      <input id="ownerPlate" placeholder="例如：ABC-1234">
-
-      <label class="title">借出之代步車車牌</label>
-      <input id="loanPlate" placeholder="例如：EB2-567">
-
-      <label class="title">取車店家</label>
-      <select id="store">
-        <option value="">請選擇店家</option>
-        <option>總店</option>
-        <option>分店</option>
-      </select>
-
-      <div class="section-title">請詳讀以下內容並完成打勾確認：</div>
-      <div class="terms" id="terms"></div>
-
-      <div class="note">本人已詳閱並同意以上代步車借用規範。請勾選確認後並上傳本人駕照，即表示本人同意上述內容。</div>
-
-      <label class="title">📷 上傳駕照正面照片 <span style="color:#ef4444">*</span></label>
-      <label class="upload" for="licenseFile" id="uploadBox">點擊拍照或選擇圖片</label>
-      <input id="licenseFile" type="file" accept="image/*" capture="environment">
-
-      <label class="title">✍️ 本人簽名 <span style="color:#ef4444">*</span></label>
-      <canvas id="sig" class="sigbox"></canvas>
-      <div class="sig-actions">
-        <span>請用手指在上方框內簽名</span>
-        <button class="clear" type="button" onclick="clearSig()">清除重簽</button>
-      </div>
-
-      <button class="btn" id="submitBtn" onclick="submitForm()">我同意並送出登記</button>
-      <div class="result" id="result">已完成送出，資料已送至店家後台保存。</div>
-      <div class="error" id="errorBox"></div>
-    </div>
-  </div>
-
+<body><div class="wrap"><div class="card">
+<h1>代步車借出登記系統</h1><div class="sub">請確認資訊並完成登記</div>
+<label class="title">登記日期</label><input id="date" type="date">
+<label class="title">您的車牌號碼（原車）</label><input id="ownerPlate" placeholder="例如：ABC-1234">
+<label class="title">借出之代步車車牌</label><input id="loanPlate" placeholder="例如：EB2-567">
+<label class="title">取車店家</label><select id="store"><option value="">請選擇店家</option><option>總店</option><option>分店</option></select>
+<div class="section-title">請詳讀以下內容並完成打勾確認：</div><div class="terms" id="terms"></div>
+<div class="note">本人已詳閱並同意以上代步車借用規範。請勾選確認後並上傳本人駕照，即表示本人同意上述內容。</div>
+<label class="title">📷 上傳駕照正面照片 *</label><label class="upload" for="licenseFile" id="uploadBox">點擊拍照或選擇圖片</label><input id="licenseFile" type="file" accept="image/*" capture="environment">
+<label class="title">✍️ 本人簽名 *</label><canvas id="sig" class="sigbox"></canvas>
+<div class="sig-actions"><span>請用手指在上方框內簽名</span><button class="clear" type="button" onclick="clearSig()">清除重簽</button></div>
+<button class="btn" id="submitBtn" onclick="submitForm()">我同意並送出登記</button>
+<div class="result" id="result">已完成送出，店家後台已保存完整 PDF 存證單。</div><div class="error" id="errorBox"></div>
+</div></div>
 <script>
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_h1MGW2WX7daG-ZBd8AGAu8ECkUuHWmKDhcvXLQGr8X6LJxTVDgAwwviJTyLVx4aJ/exec";
-
-const termsText = [
-  "我已確認本人持有有效機車駕照，且駕照未遭吊扣、吊銷或註銷。",
-  "本人目前意識清醒，未飲酒、未施用毒品、藥物或其他足以影響安全駕駛之物品。",
-  "本人確認借用代步車期間，僅限本人親自騎乘使用，不得轉借、交由他人騎乘或提供無照者使用。",
-  "借用期間如有違規、事故、罰單、扣點、毒駕、酒駕、拖吊、保管、車損、第三人損害等責任，均由本人自行負責，與出借車輛之車行無關。",
-  "若有罰單移轉、事故處理、警方調查、保險理賠或相關行政程序需求，本人願配合提供身分資料、駕照資料及相關文件。",
-  "本人借用前已確認代步車外觀與基本車況，若有異常應於借用前主動告知店家；借用後產生之新增損壞，應由本人負責。",
-  "本人應遵守交通法規，並依正常方式使用代步車，不得競速、改裝、載運危險物品、超載、違規停放或從事非一般代步用途。",
-  "本人應妥善保管代步車鑰匙與車輛，若有遺失、失竊、毀損或其他損害，願負擔相關修復、補發、拖吊或處理費用。",
-  "本人同意於約定時間內歸還代步車，若逾期未還，願配合店家聯繫並負擔因此產生之相關費用或損害。",
-  "本人已上傳駕照正面照片，並確認所提供資料均為本人真實資料，若有不實，願自負相關法律責任。"
-];
-
-document.getElementById("date").value = new Date().toISOString().slice(0,10);
-const terms = document.getElementById("terms");
-termsText.forEach((t,i)=>{
-  const div = document.createElement("label");
-  div.className = "term";
-  div.innerHTML = `<input type="checkbox" class="termCheck"><span>${i+1}. ${t}</span>`;
-  terms.appendChild(div);
-});
-
-let licenseBase64 = "";
-document.getElementById("licenseFile").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    licenseBase64 = ev.target.result;
-    document.getElementById("uploadBox").innerHTML = `<img src="${ev.target.result}" alt="駕照照片">`;
-  };
-  reader.readAsDataURL(file);
-});
-
-const canvas = document.getElementById("sig");
-const ctx = canvas.getContext("2d");
-let drawing = false, signed = false;
-
-function resizeCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * devicePixelRatio;
-  canvas.height = rect.height * devicePixelRatio;
-  ctx.scale(devicePixelRatio, devicePixelRatio);
-  ctx.lineWidth = 3;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "#111827";
-}
-setTimeout(resizeCanvas, 100);
-window.addEventListener("resize", resizeCanvas);
-
-function pos(e) {
-  const r = canvas.getBoundingClientRect();
-  const p = e.touches ? e.touches[0] : e;
-  return { x: p.clientX - r.left, y: p.clientY - r.top };
-}
-function start(e){ drawing = true; signed = true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault(); }
-function move(e){ if(!drawing) return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault(); }
-function end(){ drawing = false; }
-canvas.addEventListener("mousedown", start);
-canvas.addEventListener("mousemove", move);
-canvas.addEventListener("mouseup", end);
-canvas.addEventListener("mouseleave", end);
-canvas.addEventListener("touchstart", start, {passive:false});
-canvas.addEventListener("touchmove", move, {passive:false});
-canvas.addEventListener("touchend", end);
-
-function clearSig(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  signed = false;
-}
-
-async function submitForm(){
-  const result = document.getElementById("result");
-  const errorBox = document.getElementById("errorBox");
-  result.style.display = "none";
-  errorBox.style.display = "none";
-
-  const ownerPlate = document.getElementById("ownerPlate").value.trim();
-  const loanPlate = document.getElementById("loanPlate").value.trim();
-  const store = document.getElementById("store").value;
-  const date = document.getElementById("date").value;
-  const checks = [...document.querySelectorAll(".termCheck")];
-
-  if(!date || !ownerPlate || !loanPlate || !store){ alert("請填寫日期、車牌與取車店家"); return; }
-  if(checks.some(c=>!c.checked)){ alert("請完成所有條款勾選"); return; }
-  if(!licenseBase64){ alert("請上傳駕照正面照片"); return; }
-  if(!signed){ alert("請完成本人簽名"); return; }
-  if(GAS_WEB_APP_URL.includes("請貼上")) {
-    alert("尚未設定 Google Apps Script 後台網址，請先完成後台設定。");
-    return;
-  }
-
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.textContent = "送出中，請稍候...";
-
-  const payload = {
-    登記日期: date,
-    原車車牌: ownerPlate,
-    代步車車牌: loanPlate,
-    取車店家: store,
-    條款確認: "已全部勾選同意",
-    送出時間: new Date().toLocaleString("zh-TW"),
-    駕照照片: licenseBase64,
-    本人簽名: canvas.toDataURL("image/png")
-  };
-
-  try {
-    await fetch(GAS_WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
-
-    result.style.display = "block";
-    result.scrollIntoView({behavior:"smooth"});
-    btn.textContent = "已送出";
-  } catch (err) {
-    errorBox.textContent = "送出失敗，請檢查網路或後台設定。";
-    errorBox.style.display = "block";
-    btn.disabled = false;
-    btn.textContent = "我同意並送出登記";
-  }
-}
-</script>
-</body>
-</html>
+const GAS_WEB_APP_URL="請貼上您原本的 Google Apps Script 網址";
+const termsText=[
+"我已確認本人持有有效機車駕照，且駕照未遭吊扣、吊銷或註銷。",
+"本人目前意識清醒，未飲酒、未施用毒品、藥物或其他足以影響安全駕駛之物品。",
+"本人確認借用代步車期間，僅限本人親自騎乘使用，不得轉借、交由他人騎乘或提供無照者使用。",
+"借用期間如有違規、事故、罰單、扣點、毒駕、酒駕、拖吊、保管、車損、第三人損害等責任，均由本人自行負責，與出借車輛之車行無關。",
+"若有罰單移轉、事故處理、警方調查、保險理賠或相關行政程序需求，本人願配合提供身分資料、駕照資料及相關文件。",
+"本人借用前已確認代步車外觀與基本車況，若有異常應於借用前主動告知店家；借用後產生之新增損壞，應由本人負責。",
+"本人應遵守交通法規，並依正常方式使用代步車，不得競速、改裝、載運危險物品、超載、違規停放或從事非一般代步用途。",
+"本人應妥善保管代步車鑰匙與車輛，若有遺失、失竊、毀損或其他損害，願負擔相關修復、補發、拖吊或處理費用。",
+"本人同意於約定時間內歸還代步車，若逾期未還，願配合店家聯繫並負擔因此產生之相關費用或損害。",
+"本人已上傳駕照正面照片，並確認所提供資料均為本人真實資料，若有不實，願自負相關法律責任。"];
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+const terms=document.getElementById("terms");termsText.forEach((t,i)=>{const l=document.createElement("label");l.className="term";l.innerHTML=`<input type="checkbox" class="termCheck"><span>${i+1}. ${t}</span>`;terms.appendChild(l)});
+let licenseBase64="";document.getElementById("licenseFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=x=>{licenseBase64=x.target.result;document.getElementById("uploadBox").innerHTML=`<img src="${x.target.result}">`};r.readAsDataURL(f)});
+const canvas=document.getElementById("sig"),ctx=canvas.getContext("2d");let drawing=false,signed=false;
+function resizeCanvas(){const r=canvas.getBoundingClientRect();canvas.width=r.width*devicePixelRatio;canvas.height=r.height*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);ctx.lineWidth=3;ctx.lineCap="round";ctx.strokeStyle="#111827"}setTimeout(resizeCanvas,100);
+function pos(e){const r=canvas.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return{x:p.clientX-r.left,y:p.clientY-r.top}}function start(e){drawing=true;signed=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault()}function move(e){if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault()}function end(){drawing=false}["mousedown","touchstart"].forEach(x=>canvas.addEventListener(x,start,{passive:false}));["mousemove","touchmove"].forEach(x=>canvas.addEventListener(x,move,{passive:false}));["mouseup","mouseleave","touchend"].forEach(x=>canvas.addEventListener(x,end));function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);signed=false}
+async function submitForm(){const date=document.getElementById("date").value,ownerPlate=document.getElementById("ownerPlate").value.trim(),loanPlate=document.getElementById("loanPlate").value.trim(),store=document.getElementById("store").value,checks=[...document.querySelectorAll(".termCheck")];if(!date||!ownerPlate||!loanPlate||!store){alert("請填寫日期、車牌與取車店家");return}if(checks.some(c=>!c.checked)){alert("請完成所有條款勾選");return}if(!licenseBase64){alert("請上傳駕照正面照片");return}if(!signed){alert("請完成本人簽名");return}if(GAS_WEB_APP_URL.includes("請貼上")){alert("尚未貼入 Apps Script 網址");return}
+const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="送出中，請稍候...";
+const payload={登記日期:date,原車車牌:ownerPlate,代步車車牌:loanPlate,取車店家:store,條款內容:termsText,條款確認:"已全部勾選同意",送出時間:new Date().toLocaleString("zh-TW"),駕照照片:licenseBase64,本人簽名:canvas.toDataURL("image/png")};
+try{await fetch(GAS_WEB_APP_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});document.getElementById("result").style.display="block";btn.textContent="已送出"}catch(e){document.getElementById("errorBox").textContent="送出失敗，請檢查網路或後台設定。";document.getElementById("errorBox").style.display="block";btn.disabled=false;btn.textContent="我同意並送出登記"}}
+</script></body></html>
