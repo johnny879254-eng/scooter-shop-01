@@ -1,539 +1,295 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="UTF-8">
-<title>代步車租借管理</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
-
-  :root{
-    --paper:#f6f3ec;
-    --panel:#ffffff;
-    --ink:#22302c;
-    --ink-dim:#6b7570;
-    --border:#e2ddd0;
-    --pine:#2f6b5e;
-    --pine-dark:#204a41;
-    --amber:#c98a3c;
-    --clay:#b0503f;
-    --sky:#3d7ea6;
-    --ok:#3f8c5f;
-    --chip-bg:#eef0ea;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font-family:'Noto Sans TC','PingFang TC',sans-serif;
-    min-height:100vh;
-  }
-  h1,h2,h3,.serif{font-family:'Zilla Slab', serif;}
-
-  .app{display:grid; grid-template-columns:220px 1fr; min-height:100vh;}
-  @media(max-width:800px){.app{grid-template-columns:1fr;}}
-
-  .sidebar{
-    background:var(--pine-dark); color:#eef3ef; padding:22px 16px;
-    display:flex; flex-direction:column; gap:6px;
-  }
-  .brand{font-family:'Zilla Slab',serif; font-size:19px; font-weight:700; margin-bottom:22px; line-height:1.3;}
-  .brand small{display:block; font-size:11px; font-weight:400; opacity:.7; font-family:'Noto Sans TC',sans-serif; margin-top:3px;}
-  .nav-btn{
-    text-align:left; background:none; border:none; color:#cfe0d8; padding:11px 12px;
-    font-size:14px; border-radius:8px; cursor:pointer; font-family:inherit;
-    display:flex; align-items:center; gap:9px;
-  }
-  .nav-btn:hover{background:rgba(255,255,255,.08);}
-  .nav-btn.active{background:#3d7d6d; color:#fff; font-weight:700;}
-  .nav-icon{width:16px; text-align:center;}
-
-  .main{padding:26px 30px; max-width:1000px;}
-  .page-title{font-size:24px; margin:0 0 4px;}
-  .page-sub{color:var(--ink-dim); font-size:13px; margin:0 0 22px;}
-
-  .cards{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;}
-  @media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr);}}
-  .card{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px;}
-  .card .num{font-family:'Zilla Slab',serif; font-size:30px; font-weight:700; color:var(--pine-dark);}
-  .card .label{font-size:12px; color:var(--ink-dim); margin-top:2px;}
-  .card.alert .num{color:var(--clay);}
-
-  .panel{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:20px;}
-  .panel h3{margin:0 0 14px; font-size:16px;}
-
-  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
-  @media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
-  .field{display:flex; flex-direction:column; gap:5px;}
-  .field label{font-size:12px; color:var(--ink-dim);}
-  .field input, .field select, .field textarea{
-    padding:9px 10px; border:1px solid var(--border); border-radius:7px;
-    font-family:inherit; font-size:14px; background:#fdfcfa;
-  }
-  .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--pine); outline-offset:1px;}
-  .field.full{grid-column:1/-1;}
-
-  .btn{
-    padding:10px 18px; border-radius:7px; border:none; cursor:pointer;
-    font-family:inherit; font-size:14px; font-weight:700;
-  }
-  .btn-primary{background:var(--pine); color:#fff;}
-  .btn-primary:hover{background:var(--pine-dark);}
-  .btn-ghost{background:none; border:1px solid var(--border); color:var(--ink);}
-  .btn-ghost:hover{background:var(--chip-bg);}
-  .btn-small{padding:6px 10px; font-size:12px; border-radius:6px;}
-  .btn-danger{background:none; border:1px solid var(--clay); color:var(--clay);}
-  .btn-row{display:flex; gap:10px; margin-top:16px;}
-
-  table{width:100%; border-collapse:collapse; font-size:13px;}
-  th{text-align:left; color:var(--ink-dim); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.5px; padding:8px 10px; border-bottom:1px solid var(--border);}
-  td{padding:10px; border-bottom:1px solid var(--border); vertical-align:middle;}
-  tr:last-child td{border-bottom:none;}
-
-  .badge{display:inline-block; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:700;}
-  .badge.pending{background:#f4e6cf; color:var(--amber);}
-  .badge.out{background:#dcebf3; color:var(--sky);}
-  .badge.returned{background:#dcefe1; color:var(--ok);}
-  .badge.cancelled{background:#eee; color:#999; text-decoration:line-through;}
-  .badge.overdue{background:#f6dcd7; color:var(--clay);}
-
-  .filter-row{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
-  .filter-btn{
-    padding:6px 12px; border-radius:100px; border:1px solid var(--border);
-    background:#fff; font-size:12px; cursor:pointer; font-family:inherit;
-  }
-  .filter-btn.active{background:var(--pine); color:#fff; border-color:var(--pine);}
-
-  .empty{text-align:center; padding:40px 20px; color:var(--ink-dim); font-size:13px;}
-  .action-cell{display:flex; gap:6px; flex-wrap:wrap;}
-
-  .vlist{display:flex; flex-direction:column; gap:10px;}
-  .vitem{display:flex; align-items:center; justify-content:space-between; padding:12px; border:1px solid var(--border); border-radius:8px;}
-  .vitem .vname{font-weight:700;}
-  .vitem .vqty{font-size:12px; color:var(--ink-dim);}
-  .avail-pill{font-size:12px; padding:3px 10px; border-radius:100px; background:var(--chip-bg); font-weight:700;}
-  .avail-pill.low{background:#f6dcd7; color:var(--clay);}
-
-  .toast{
-    position:fixed; bottom:20px; right:20px; background:var(--pine-dark); color:#fff;
-    padding:12px 18px; border-radius:8px; font-size:13px; opacity:0; transform:translateY(10px);
-    transition:all .25s; pointer-events:none;
-  }
-  .toast.show{opacity:1; transform:translateY(0);}
-  .note{font-size:11px; color:var(--ink-dim); margin-top:6px;}
-  .shared-note{
-    background:#f4e6cf; border:1px solid #e0c48f; color:#6b5326; font-size:12px;
-    padding:10px 12px; border-radius:8px; margin-bottom:18px;
-  }
-  .loading{padding:30px; text-align:center; color:var(--ink-dim); font-size:13px;}
-</style>
+<!-- saved from url=(0036)file:///D:/MyDate/Desktop/index.html -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>代步車借出登記系統</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background: #f3f6fb;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 24px 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+    }
+    h1 {
+      font-size: 34px;
+      line-height: 1.15;
+      margin: 10px 0 8px;
+      letter-spacing: -1px;
+      color: #111827;
+    }
+    .sub {
+      font-size: 22px;
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+    label.title {
+      display: block;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 18px 0 8px;
+    }
+    input, select {
+      width: 100%;
+      height: 58px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 22px;
+      background: #fff;
+      color: #111827;
+    }
+    input[readonly] { background: #f9fafb; color:#6b7280; }
+    .section-title {
+      font-size: 23px;
+      font-weight: 800;
+      margin: 28px 0 12px;
+    }
+    .terms {
+      display: grid;
+      gap: 12px;
+    }
+    .term {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 14px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fff;
+      font-size: 20px;
+      line-height: 1.55;
+    }
+    .term input {
+      width: 26px;
+      height: 26px;
+      margin-top: 4px;
+    }
+    .note {
+      color: #6b7280;
+      font-size: 19px;
+      margin: 20px 0 12px;
+    }
+    .upload {
+      border: 2px dashed #d1d5db;
+      border-radius: 16px;
+      height: 150px;
+      display: grid;
+      place-items: center;
+      color: #6b7280;
+      font-size: 22px;
+      text-align: center;
+      padding: 10px;
+      background:#fafafa;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .upload img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+    #licenseFile { display:none; }
+    .sigbox {
+      border: 2px solid #2563eb;
+      border-radius: 12px;
+      width: 100%;
+      height: 190px;
+      background: #fff;
+      touch-action: none;
+    }
+    .sig-actions {
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      margin: 6px 0 0;
+      color:#9ca3af;
+      font-size:18px;
+    }
+    .clear {
+      border:0;
+      background:transparent;
+      color:#9ca3af;
+      font-size:18px;
+      text-decoration: underline;
+    }
+    .btn {
+      margin-top: 24px;
+      width:100%;
+      border:0;
+      border-radius:14px;
+      background:#2563eb;
+      color:white;
+      font-size:28px;
+      font-weight:800;
+      padding:18px 12px;
+      cursor:pointer;
+    }
+    .btn:active { transform: scale(.99); }
+    .result {
+      display:none;
+      margin-top:18px;
+      padding:14px;
+      border-radius:12px;
+      background:#ecfdf5;
+      color:#065f46;
+      font-size:19px;
+      white-space: pre-wrap;
+    }
+    .small { font-size:16px; color:#6b7280; margin-top:12px; }
+  </style>
 </head>
 <body>
-<div class="app">
-  <div class="sidebar">
-    <div class="brand">代步車租借管理<small>店家內部系統</small></div>
-    <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">▤</span>儀表板</button>
-    <button class="nav-btn" data-page="newbooking"><span class="nav-icon">＋</span>新增預約</button>
-    <button class="nav-btn" data-page="bookings"><span class="nav-icon">☰</span>預約列表</button>
-    <button class="nav-btn" data-page="vehicles"><span class="nav-icon">◈</span>車輛管理</button>
-  </div>
+  <div class="wrap">
+    <div class="card">
+      <h1>代步車登記系統</h1>
+      <div class="sub">請確認資訊並完成登記</div>
 
-  <div class="main" id="mainArea">
-    <div class="loading">載入資料中...</div>
+      <label class="title">登記日期</label>
+      <input id="date" readonly="">
+
+      <label class="title">您的車牌號碼（原車）</label>
+      <input id="ownerPlate" placeholder="例如：ABC-1234">
+
+      <label class="title">借出之代步車車牌</label>
+      <input id="loanPlate" placeholder="例如：EB2-567">
+
+      <label class="title">取車店家</label>
+      <select id="store">
+        <option value="">請選擇店家</option>
+        <option>總店</option>
+        <option>分店</option>
+      </select>
+
+      <div class="section-title">請直接詳讀以下內容並完成打勾確認：</div>
+      <div class="terms" id="terms"><label class="term"><input type="checkbox" class="termCheck"><span>1. 我已確認本人持有有效機車駕照，且駕照未遭吊扣、吊銷或註銷。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>2. 本人目前意識清醒，未飲酒、未施用毒品、藥物或其他足以影響安全駕駛之物品。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>3. 本人確認借用代步車期間，僅限本人親自騎乘使用，不得轉借、交由他人騎乘或提供無照者使用。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>4. 借用期間如有違規、事故、罰單、扣點、毒駕、酒駕、拖吊、保管、車損、第三人損害等責任，均由本人自行負責，與出借車輛之車行無關。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>5. 若有罰單移轉、事故處理、警方調查、保險理賠或相關行政程序需求，本人願配合提供身分資料、駕照資料及相關文件。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>6. 本人借用前已確認代步車外觀與基本車況，若有異常應於借用前主動告知店家；借用後產生之新增損壞，應由本人負責。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>7. 本人應遵守交通法規，並依正常方式使用代步車，不得競速、改裝、載運危險物品、超載、違規停放或從事非一般代步用途。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>8. 本人應妥善保管代步車鑰匙與車輛，若有遺失、失竊、毀損或其他損害，願負擔相關修復、補發、拖吊或處理費用。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>9. 本人同意於約定時間內歸還代步車，若逾期未還，願配合店家聯繫並負擔因此產生之相關費用或損害。</span></label><label class="term"><input type="checkbox" class="termCheck"><span>10. 本人已上傳駕照正面照片，並確認所提供資料均為本人真實資料，若有不實，願自負相關法律責任。</span></label></div>
+
+      <div class="note">本人已詳閱並同意以上代步車借用規範。請勾選確認後並上傳本人駕照，即表示本人同意上述內容。</div>
+
+      <label class="title">📷 上傳駕照正面照片 <span style="color:#ef4444">*</span></label>
+      <label class="upload" for="licenseFile" id="uploadBox">點擊拍照或選擇圖片</label>
+      <input id="licenseFile" type="file" accept="image/*" capture="environment">
+
+      <label class="title">✍️ 本人簽名 <span style="color:#ef4444">*</span></label>
+      <canvas id="sig" class="sigbox" width="456" height="190"></canvas>
+      <div class="sig-actions">
+        <span>請用手指在上方框內簽名</span>
+        <button class="clear" type="button" onclick="clearSig()">清除重簽</button>
+      </div>
+
+      <button class="btn" onclick="submitForm()">我同意並送出代步車借用登記</button>
+      <div class="result" id="result"></div>
+      <div class="small">第一版為前端表單範本。正式上線若要保存資料，建議接 Google 表單、Google Sheet、LINE LIFF 或後台資料庫。</div>
+    </div>
   </div>
-</div>
-<div class="toast" id="toast"></div>
 
 <script>
-/* ============ 資料層(Google 試算表 + Apps Script) ============ */
-// ⚠️ 請把下面這行換成你自己部署的 Apps Script 網址(結尾是 /exec)
-// 部署步驟請參考另外提供的「設定說明.md」
-const API_URL = 'https://script.google.com/macros/library/d/1rO6lzVjAVcA8A9AgXnKHfFrFRemX6D35GyeaIZ6J_hq_g3FlJB4w3MoQ/1';
+const termsText = [
+  "我已確認本人持有有效機車駕照，且駕照未遭吊扣、吊銷或註銷。",
+  "本人目前意識清醒，未飲酒、未施用毒品、藥物或其他足以影響安全駕駛之物品。",
+  "本人確認借用代步車期間，僅限本人親自騎乘使用，不得轉借、交由他人騎乘或提供無照者使用。",
+  "借用期間如有違規、事故、罰單、扣點、毒駕、酒駕、拖吊、保管、車損、第三人損害等責任，均由本人自行負責，與出借車輛之車行無關。",
+  "若有罰單移轉、事故處理、警方調查、保險理賠或相關行政程序需求，本人願配合提供身分資料、駕照資料及相關文件。",
+  "本人借用前已確認代步車外觀與基本車況，若有異常應於借用前主動告知店家；借用後產生之新增損壞，應由本人負責。",
+  "本人應遵守交通法規，並依正常方式使用代步車，不得競速、改裝、載運危險物品、超載、違規停放或從事非一般代步用途。",
+  "本人應妥善保管代步車鑰匙與車輛，若有遺失、失竊、毀損或其他損害，願負擔相關修復、補發、拖吊或處理費用。",
+  "本人同意於約定時間內歸還代步車，若逾期未還，願配合店家聯繫並負擔因此產生之相關費用或損害。",
+  "本人已上傳駕照正面照片，並確認所提供資料均為本人真實資料，若有不實，願自負相關法律責任。"
+];
 
-let data = { vehicles: [], bookings: [] };
-let loaded = false;
-let apiConfigured = !API_URL.includes('PASTE_YOUR_APPS_SCRIPT_URL_HERE');
-
-function defaultData(){
-  return {
-    vehicles: [
-      { id: genId(), name: '標準型代步車 A', totalQty: 5 },
-      { id: genId(), name: '輕便折疊型 B', totalQty: 3 }
-    ],
-    bookings: []
-  };
-}
-
-async function loadData(){
-  if(!apiConfigured){
-    data = defaultData();
-    loaded = true;
-    return;
-  }
-  try{
-    const res = await fetch(API_URL, { cache: 'no-store' });
-    const json = await res.json();
-    if(json && (json.vehicles || json.bookings)){
-      data = { vehicles: json.vehicles || [], bookings: json.bookings || [] };
-    } else {
-      data = defaultData();
-      await saveData();
-    }
-  }catch(e){
-    console.error('讀取失敗', e);
-    showToast('讀取資料失敗,請檢查網路連線或稍後再試');
-    data = defaultData();
-  }
-  loaded = true;
-}
-
-async function saveData(){
-  if(!apiConfigured){
-    showToast('尚未設定資料庫網址,資料不會被保存(請見設定說明)');
-    return;
-  }
-  try{
-    const url = API_URL + '?action=save&data=' + encodeURIComponent(JSON.stringify(data));
-    const res = await fetch(url, { cache: 'no-store' });
-    const json = await res.json();
-    if(!json || !json.success) showToast('儲存失敗,請重試');
-  }catch(e){
-    console.error(e);
-    showToast('儲存失敗:' + e.message);
-  }
-}
-
-function genId(){ return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
-
-/* ============ 工具 ============ */
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2200);
-}
-function fmtDT(date, time){ return date + (time ? ' ' + time : ''); }
-function vehicleName(id){ const v = data.vehicles.find(v=>v.id===id); return v ? v.name : '(已刪除車輛)'; }
-function currentlyOut(vehicleId){
-  return data.bookings.filter(b => b.vehicleId===vehicleId && b.status==='已借出').length;
-}
-function isOverdue(b){
-  if(b.status !== '已借出') return false;
-  const end = new Date(b.endDate + 'T' + (b.endTime||'23:59'));
-  return end < new Date();
-}
-function statusBadgeClass(b){
-  if(isOverdue(b)) return 'overdue';
-  if(b.status==='預約中') return 'pending';
-  if(b.status==='已借出') return 'out';
-  if(b.status==='已歸還') return 'returned';
-  return 'cancelled';
-}
-function statusLabel(b){
-  if(isOverdue(b)) return '逾期未還';
-  return b.status;
-}
-
-/* ============ 導覽 ============ */
-let currentPage = 'dashboard';
-document.querySelectorAll('.nav-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentPage = btn.dataset.page;
-    render();
-  });
+document.getElementById("date").value = new Date().toISOString().slice(0,10);
+const terms = document.getElementById("terms");
+termsText.forEach((t,i)=>{
+  const div = document.createElement("label");
+  div.className = "term";
+  div.innerHTML = `<input type="checkbox" class="termCheck"><span>${i+1}. ${t}</span>`;
+  terms.appendChild(div);
 });
 
-/* ============ 渲染路由 ============ */
-function render(){
-  const main = document.getElementById('mainArea');
-  if(!loaded){ main.innerHTML = '<div class="loading">載入資料中...</div>'; return; }
-  if(currentPage === 'dashboard') return renderDashboard(main);
-  if(currentPage === 'newbooking') return renderNewBooking(main);
-  if(currentPage === 'bookings') return renderBookings(main);
-  if(currentPage === 'vehicles') return renderVehicles(main);
+document.getElementById("licenseFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById("uploadBox").innerHTML = `<img src="${ev.target.result}" alt="駕照照片">`;
+  };
+  reader.readAsDataURL(file);
+});
+
+const canvas = document.getElementById("sig");
+const ctx = canvas.getContext("2d");
+let drawing = false, signed = false;
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const img = ctx.getImageData(0,0,canvas.width||1,canvas.height||1);
+  canvas.width = rect.width * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#111827";
+}
+setTimeout(resizeCanvas, 100);
+window.addEventListener("resize", resizeCanvas);
+
+function pos(e) {
+  const r = canvas.getBoundingClientRect();
+  const p = e.touches ? e.touches[0] : e;
+  return { x: p.clientX - r.left, y: p.clientY - r.top };
+}
+function start(e){ drawing = true; signed = true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault(); }
+function move(e){ if(!drawing) return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault(); }
+function end(){ drawing = false; }
+canvas.addEventListener("mousedown", start);
+canvas.addEventListener("mousemove", move);
+canvas.addEventListener("mouseup", end);
+canvas.addEventListener("mouseleave", end);
+canvas.addEventListener("touchstart", start, {passive:false});
+canvas.addEventListener("touchmove", move, {passive:false});
+canvas.addEventListener("touchend", end);
+
+function clearSig(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  signed = false;
 }
 
-/* ============ 儀表板 ============ */
-function renderDashboard(main){
-  const totalVehicles = data.vehicles.reduce((s,v)=>s+v.totalQty,0);
-  const totalOut = data.bookings.filter(b=>b.status==='已借出').length;
-  const todayStr = new Date().toISOString().slice(0,10);
-  const todayBookings = data.bookings.filter(b=>b.startDate===todayStr);
-  const overdue = data.bookings.filter(isOverdue);
+function submitForm(){
+  const ownerPlate = document.getElementById("ownerPlate").value.trim();
+  const loanPlate = document.getElementById("loanPlate").value.trim();
+  const store = document.getElementById("store").value;
+  const checks = [...document.querySelectorAll(".termCheck")];
+  const file = document.getElementById("licenseFile").files[0];
 
-  main.innerHTML = `
-    ${apiConfigured
-      ? '<div class="shared-note">📌 這份資料是共用資料,店內所有使用這個頁面的人都會看到同一份紀錄。</div>'
-      : '<div class="shared-note" style="background:#f6dcd7; border-color:#e0a89f; color:#7a2e22;">⚠️ 尚未連接資料庫,目前資料只存在這次瀏覽中,重新整理就會消失。請依「設定說明」把 Google Apps Script 網址填進程式碼裡的 API_URL。</div>'
-    }
-    <h1 class="page-title">儀表板</h1>
-    <p class="page-sub">${new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'})}</p>
+  if(!ownerPlate || !loanPlate || !store){ alert("請填寫車牌與取車店家"); return; }
+  if(checks.some(c=>!c.checked)){ alert("請完成所有條款勾選"); return; }
+  if(!file){ alert("請上傳駕照正面照片"); return; }
+  if(!signed){ alert("請完成本人簽名"); return; }
 
-    <div class="cards">
-      <div class="card"><div class="num">${totalVehicles}</div><div class="label">車輛總數</div></div>
-      <div class="card"><div class="num">${totalOut}</div><div class="label">目前借出中</div></div>
-      <div class="card"><div class="num">${todayBookings.length}</div><div class="label">今日預約</div></div>
-      <div class="card ${overdue.length>0?'alert':''}"><div class="num">${overdue.length}</div><div class="label">逾期未還</div></div>
-    </div>
-
-    ${overdue.length>0 ? `
-    <div class="panel">
-      <h3 style="color:var(--clay);">⚠ 逾期未還</h3>
-      ${renderBookingTable(overdue, false)}
-    </div>` : ''}
-
-    <div class="panel">
-      <h3>今日預約</h3>
-      ${todayBookings.length ? renderBookingTable(todayBookings, false) : '<div class="empty">今天還沒有預約紀錄</div>'}
-    </div>
-
-    <div class="panel">
-      <h3>車輛可借狀況</h3>
-      <div class="vlist">
-        ${data.vehicles.map(v=>{
-          const out = currentlyOut(v.id);
-          const avail = v.totalQty - out;
-          return `<div class="vitem">
-            <div><div class="vname">${escapeHtml(v.name)}</div><div class="vqty">總數 ${v.totalQty} · 借出中 ${out}</div></div>
-            <div class="avail-pill ${avail<=1?'low':''}">可借 ${avail} 台</div>
-          </div>`;
-        }).join('') || '<div class="empty">尚未新增車輛,請至「車輛管理」新增</div>'}
-      </div>
-    </div>
-  `;
+  const data = {
+    登記日期: document.getElementById("date").value,
+    原車車牌: ownerPlate,
+    代步車車牌: loanPlate,
+    取車店家: store,
+    送出時間: new Date().toLocaleString("zh-TW")
+  };
+  localStorage.setItem("loanBikeRecord_" + Date.now(), JSON.stringify(data));
+  const result = document.getElementById("result");
+  result.style.display = "block";
+  result.textContent = "已完成送出（範本紀錄已暫存在此手機瀏覽器）\n\n" + JSON.stringify(data, null, 2);
+  result.scrollIntoView({behavior:"smooth"});
 }
-
-/* ============ 新增預約 ============ */
-function renderNewBooking(main){
-  main.innerHTML = `
-    <h1 class="page-title">新增預約</h1>
-    <p class="page-sub">登記顧客資料與租借時間</p>
-    <div class="panel">
-      <form id="bookingForm">
-        <div class="form-grid">
-          <div class="field"><label>顧客姓名</label><input type="text" name="customerName" required></div>
-          <div class="field"><label>聯絡電話</label><input type="tel" name="phone" required></div>
-          <div class="field"><label>車輛類型</label>
-            <select name="vehicleId" required>
-              <option value="">請選擇</option>
-              ${data.vehicles.map(v=>{
-                const avail = v.totalQty - currentlyOut(v.id);
-                return `<option value="${v.id}">${escapeHtml(v.name)}(可借 ${avail} 台)</option>`;
-              }).join('')}
-            </select>
-          </div>
-          <div class="field"><label>&nbsp;</label><div class="note">若車輛尚未建立,請先至「車輛管理」新增</div></div>
-          <div class="field"><label>借出日期</label><input type="date" name="startDate" required></div>
-          <div class="field"><label>借出時間</label><input type="time" name="startTime" value="09:00"></div>
-          <div class="field"><label>預計歸還日期</label><input type="date" name="endDate" required></div>
-          <div class="field"><label>預計歸還時間</label><input type="time" name="endTime" value="18:00"></div>
-          <div class="field full"><label>備註(選填)</label><textarea name="notes" rows="2"></textarea></div>
-        </div>
-        <div id="availWarning" class="note" style="color:var(--clay); display:none;"></div>
-        <div class="btn-row">
-          <button type="submit" class="btn btn-primary">建立預約</button>
-        </div>
-      </form>
-    </div>
-  `;
-
-  const form = document.getElementById('bookingForm');
-  const vehicleSelect = form.vehicleId;
-  const warnBox = document.getElementById('availWarning');
-
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const fd = new FormData(form);
-    const vehicleId = fd.get('vehicleId');
-    const v = data.vehicles.find(v=>v.id===vehicleId);
-    const avail = v.totalQty - currentlyOut(vehicleId);
-
-    if(avail <= 0){
-      warnBox.style.display = 'block';
-      warnBox.textContent = `⚠ ${v.name} 目前已無可借數量(可借 ${avail} 台),請確認是否仍要建立此預約。再次送出將直接建立。`;
-      if(!form.dataset.confirmed){
-        form.dataset.confirmed = '1';
-        return;
-      }
-    }
-    delete form.dataset.confirmed;
-    warnBox.style.display = 'none';
-
-    const booking = {
-      id: genId(),
-      customerName: fd.get('customerName').trim(),
-      phone: fd.get('phone').trim(),
-      vehicleId,
-      startDate: fd.get('startDate'),
-      startTime: fd.get('startTime'),
-      endDate: fd.get('endDate'),
-      endTime: fd.get('endTime'),
-      notes: fd.get('notes').trim(),
-      status: '預約中',
-      createdAt: new Date().toISOString()
-    };
-    data.bookings.push(booking);
-    await saveData();
-    showToast('預約已建立');
-    form.reset();
-    currentPage = 'bookings';
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelector('[data-page="bookings"]').classList.add('active');
-    render();
-  });
-}
-
-/* ============ 預約列表 ============ */
-let bookingFilter = 'all';
-function renderBookings(main){
-  const filters = [
-    {key:'all', label:'全部'},
-    {key:'預約中', label:'預約中'},
-    {key:'已借出', label:'已借出'},
-    {key:'已歸還', label:'已歸還'},
-    {key:'已取消', label:'已取消'},
-  ];
-  let list = data.bookings.slice().sort((a,b)=> (b.createdAt||'').localeCompare(a.createdAt||''));
-  if(bookingFilter !== 'all') list = list.filter(b=>b.status===bookingFilter);
-
-  main.innerHTML = `
-    <h1 class="page-title">預約列表</h1>
-    <p class="page-sub">共 ${data.bookings.length} 筆紀錄</p>
-    <div class="filter-row">
-      ${filters.map(f=>`<button class="filter-btn ${bookingFilter===f.key?'active':''}" data-filter="${f.key}">${f.label}</button>`).join('')}
-    </div>
-    <div class="panel">
-      ${list.length ? renderBookingTable(list, true) : '<div class="empty">沒有符合條件的預約紀錄</div>'}
-    </div>
-  `;
-
-  main.querySelectorAll('.filter-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ bookingFilter = btn.dataset.filter; render(); });
-  });
-  main.querySelectorAll('[data-action]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const id = btn.dataset.id;
-      const action = btn.dataset.action;
-      const b = data.bookings.find(b=>b.id===id);
-      if(!b) return;
-      if(action==='out'){ b.status='已借出'; showToast('已標記為借出'); }
-      if(action==='return'){ b.status='已歸還'; showToast('已標記為歸還'); }
-      if(action==='cancel'){ if(!confirm('確定要取消這筆預約嗎?')) return; b.status='已取消'; showToast('預約已取消'); }
-      if(action==='delete'){ if(!confirm('確定要刪除這筆紀錄嗎?此動作無法復原。')) return; data.bookings = data.bookings.filter(x=>x.id!==id); showToast('紀錄已刪除'); }
-      await saveData();
-      render();
-    });
-  });
-}
-
-function renderBookingTable(list, withActions){
-  return `
-    <table>
-      <thead><tr>
-        <th>顧客</th><th>電話</th><th>車輛</th><th>借出</th><th>預計歸還</th><th>狀態</th>${withActions?'<th>操作</th>':''}
-      </tr></thead>
-      <tbody>
-        ${list.map(b=>`
-          <tr>
-            <td>${escapeHtml(b.customerName)}</td>
-            <td>${escapeHtml(b.phone)}</td>
-            <td>${escapeHtml(vehicleName(b.vehicleId))}</td>
-            <td>${fmtDT(b.startDate,b.startTime)}</td>
-            <td>${fmtDT(b.endDate,b.endTime)}</td>
-            <td><span class="badge ${statusBadgeClass(b)}">${statusLabel(b)}</span></td>
-            ${withActions ? `<td><div class="action-cell">
-              ${b.status==='預約中' ? `<button class="btn btn-ghost btn-small" data-action="out" data-id="${b.id}">標記借出</button>` : ''}
-              ${b.status==='已借出' ? `<button class="btn btn-ghost btn-small" data-action="return" data-id="${b.id}">標記歸還</button>` : ''}
-              ${(b.status==='預約中'||b.status==='已借出') ? `<button class="btn btn-ghost btn-small" data-action="cancel" data-id="${b.id}">取消</button>` : ''}
-              <button class="btn btn-danger btn-small" data-action="delete" data-id="${b.id}">刪除</button>
-            </div></td>` : ''}
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-}
-
-/* ============ 車輛管理 ============ */
-function renderVehicles(main){
-  main.innerHTML = `
-    <h1 class="page-title">車輛管理</h1>
-    <p class="page-sub">設定車輛類型與可借總數</p>
-
-    <div class="panel">
-      <h3>新增車輛</h3>
-      <form id="vehicleForm" class="form-grid">
-        <div class="field"><label>車輛名稱/型號</label><input type="text" name="name" required placeholder="例如:標準型代步車 C"></div>
-        <div class="field"><label>可借總數</label><input type="number" name="totalQty" min="1" value="1" required></div>
-        <div class="field full"><button type="submit" class="btn btn-primary">新增車輛</button></div>
-      </form>
-    </div>
-
-    <div class="panel">
-      <h3>目前車輛清單</h3>
-      <div class="vlist" id="vehicleList">
-        ${data.vehicles.map(v=>{
-          const out = currentlyOut(v.id);
-          return `
-          <div class="vitem">
-            <div><div class="vname">${escapeHtml(v.name)}</div><div class="vqty">總數 ${v.totalQty} · 借出中 ${out} · 可借 ${v.totalQty-out}</div></div>
-            <div class="action-cell">
-              <button class="btn btn-ghost btn-small" data-edit="${v.id}">調整總數</button>
-              <button class="btn btn-danger btn-small" data-del="${v.id}">刪除</button>
-            </div>
-          </div>`;
-        }).join('') || '<div class="empty">尚未新增任何車輛</div>'}
-      </div>
-    </div>
-  `;
-
-  document.getElementById('vehicleForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    data.vehicles.push({ id: genId(), name: fd.get('name').trim(), totalQty: parseInt(fd.get('totalQty'))||1 });
-    await saveData();
-    showToast('車輛已新增');
-    render();
-  });
-
-  main.querySelectorAll('[data-edit]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const v = data.vehicles.find(v=>v.id===btn.dataset.edit);
-      const val = prompt(`設定「${v.name}」的可借總數:`, v.totalQty);
-      if(val===null) return;
-      const n = parseInt(val);
-      if(isNaN(n) || n<0){ showToast('請輸入有效數字'); return; }
-      v.totalQty = n;
-      await saveData();
-      showToast('已更新');
-      render();
-    });
-  });
-  main.querySelectorAll('[data-del]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const id = btn.dataset.del;
-      const inUse = data.bookings.some(b=>b.vehicleId===id && (b.status==='預約中'||b.status==='已借出'));
-      if(inUse){ showToast('此車輛尚有進行中的預約,無法刪除'); return; }
-      if(!confirm('確定要刪除這個車輛類型嗎?')) return;
-      data.vehicles = data.vehicles.filter(v=>v.id!==id);
-      await saveData();
-      showToast('車輛已刪除');
-      render();
-    });
-  });
-}
-
-function escapeHtml(str){
-  const div = document.createElement('div');
-  div.textContent = str ?? '';
-  return div.innerHTML;
-}
-
-/* ============ 初始化 ============ */
-(async function init(){
-  await loadData();
-  render();
-})();
 </script>
-</body>
-</html>
+
+
+</body></html>
