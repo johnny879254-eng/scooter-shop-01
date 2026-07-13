@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>豐源機車行｜車籍小筆記</title>
+<style>
+:root{--bg:#eef3f7;--card:#fff;--ink:#18212f;--muted:#6b7686;--brand:#173b68;--accent:#f2b705;--ok:#16824b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Microsoft JhengHei",system-ui,sans-serif}
+button,input,textarea{font:inherit}.app{max-width:720px;margin:auto;min-height:100vh;padding-bottom:88px}
+.top{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 16px #0002}
+.top h1{font-size:21px;margin:0}.top small{opacity:.8}main{padding:14px}
+.card{background:var(--card);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px #173b6818}
+h2{font-size:20px;margin:0 0 12px;color:var(--brand)}label{display:block;font-weight:900;margin:12px 0 6px}
+input,textarea{width:100%;border:2px solid #d7e0e9;border-radius:14px;padding:14px 15px;font-size:20px;background:#fff}
+textarea{min-height:150px;resize:vertical;line-height:1.6}.plate{font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.quick button{border:2px solid #cbd7e3;background:#f8fbfe;border-radius:14px;padding:13px 7px;font-weight:900;font-size:17px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.btn{border:0;border-radius:15px;padding:15px;font-weight:900;font-size:18px}
+.primary{background:var(--ok);color:#fff}.secondary{background:#dfe9f4;color:var(--brand)}.warn{background:var(--accent);color:#151515}
+.searchbar{display:grid;grid-template-columns:1fr auto;gap:8px}.searchbar button{padding:0 18px}
+.item{border:1px solid #dce4ec;border-radius:15px;padding:13px;margin-top:10px;background:#fbfdff}
+.itemhead{display:flex;justify-content:space-between;gap:12px;align-items:center}.itemplate{font-size:23px;font-weight:900;color:#075b91}.time{font-size:13px;color:var(--muted)}
+.note{white-space:pre-wrap;line-height:1.55;margin-top:9px}.meta{font-size:14px;color:#566272;margin-top:7px}.empty{text-align:center;color:var(--muted);padding:24px 8px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #dce4ec;display:flex;justify-content:center;padding:10px}
+.bottom .inner{width:min(720px,100%);display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}.bottom button{border:0;border-radius:13px;padding:11px 4px;background:#edf3f8;font-weight:900;color:var(--brand)}
+.view{display:none}.view.active{display:block}@media(max-width:520px){.row{grid-template-columns:1fr}.quick{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div><h1>豐源機車行｜車籍小筆記</h1><small>先服務客人，再慢慢整理</small></div><div id="pendingCount">0 筆</div></header>
+<main>
+<section id="newView" class="view active">
+<div class="card">
+<h2>快速記一筆</h2>
+<label>車牌</label><input id="plate" class="plate" placeholder="例如 NNU-7993" autocomplete="off">
+<div class="row">
+<div><label>里程</label><input id="mileage" inputmode="numeric" placeholder="例如 14047"></div>
+<div><label>客人電話（可稍後補）</label><input id="phone" inputmode="tel" placeholder="可留空"></div>
+</div>
+<label>今天換什麼／做什麼</label>
+<div class="quick" id="quickBtns"></div>
+<textarea id="note" placeholder="例如：
+換機油
+齒輪油
+14047公里"></textarea>
+<div class="actions"><button class="btn secondary" onclick="clearForm()">清除</button><button class="btn primary" onclick="saveNote()">儲存小筆記</button></div>
+</div>
+<div class="card"><h2>今天尚未整理</h2><div id="todayList"></div></div>
+</section>
+
+<section id="searchView" class="view">
+<div class="card"><h2>查詢車籍紀錄</h2><div class="searchbar"><input id="searchInput" class="plate" placeholder="輸入完整或部分車牌"><button class="btn warn" onclick="searchNotes()">查詢</button></div></div>
+<div class="card"><div id="searchResults" class="empty">請輸入車牌查詢</div></div>
+</section>
+
+<section id="allView" class="view"><div class="card"><h2>全部小筆記</h2><div id="allList"></div></div></section>
+</main>
+<nav class="bottom"><div class="inner"><button onclick="showView('newView')">✍️ 新增</button><button onclick="showView('searchView')">🔎 查詢</button><button onclick="showView('allView')">📒 全部</button></div></nav>
+</div>
+<script>
+const QUICK=["機油","齒輪油","空氣濾清器","汽油精","火星塞","傳動","前輪","後輪","大保養","電瓶"];
+const KEY="fengyuan_moto_notes_v1";
+function loadNotes(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
+function storeNotes(data){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+function normalizePlate(v){return(v||"").toUpperCase().replace(/\s+/g,"").replace(/[^A-Z0-9-]/g,"")}
+function esc(s){return(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function quickAdd(text){const box=document.getElementById("note");const current=box.value.trim();box.value=current?current+"\n"+text:text;box.focus()}
+QUICK.forEach(x=>{const b=document.createElement("button");b.textContent=x;b.onclick=()=>quickAdd(x);document.getElementById("quickBtns").appendChild(b)})
+function saveNote(){
+ const plate=normalizePlate(document.getElementById("plate").value),note=document.getElementById("note").value.trim();
+ if(!plate){alert("請先輸入車牌");return} if(!note){alert("請輸入今天換了什麼");return}
+ const data=loadNotes();data.unshift({id:Date.now(),plate,mileage:mileage.value.trim(),phone:phone.value.trim(),note,done:false,createdAt:new Date().toISOString()});
+ storeNotes(data);clearForm();alert("已儲存："+plate)
+}
+function clearForm(){["plate","mileage","phone","note"].forEach(id=>document.getElementById(id).value="");document.getElementById("plate").focus()}
+function fmt(iso){return new Date(iso).toLocaleString("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false})}
+function card(n,withDone=true){return `<div class="item"><div class="itemhead"><div class="itemplate">${esc(n.plate)}</div><div class="time">${fmt(n.createdAt)}</div></div><div class="note">${esc(n.note)}</div><div class="meta">${n.mileage?`里程：${esc(n.mileage)} km　`:""}${n.phone?`電話：${esc(n.phone)}`:""}</div>${withDone?`<div style="margin-top:10px"><button class="btn ${n.done?"secondary":"primary"}" onclick="toggleDone(${n.id})">${n.done?"已整理":"標記已整理"}</button> <button class="btn secondary" onclick="deleteNote(${n.id})">刪除</button></div>`:""}</div>`}
+function toggleDone(id){storeNotes(loadNotes().map(x=>x.id===id?{...x,done:!x.done}:x))}
+function deleteNote(id){if(confirm("確定刪除這筆小筆記？"))storeNotes(loadNotes().filter(x=>x.id!==id))}
+function renderAll(){const data=loadNotes(),pending=data.filter(x=>!x.done);pendingCount.textContent=pending.length+" 筆";todayList.innerHTML=pending.length?pending.map(x=>card(x)).join(""):'<div class="empty">目前沒有待整理紀錄</div>';allList.innerHTML=data.length?data.map(x=>card(x)).join(""):'<div class="empty">還沒有任何紀錄</div>'}
+function searchNotes(){const q=normalizePlate(searchInput.value);if(!q){searchResults.innerHTML='<div class="empty">請輸入車牌</div>';return}const found=loadNotes().filter(x=>x.plate.includes(q));searchResults.innerHTML=found.length?found.map(x=>card(x,false)).join(""):'<div class="empty">找不到這台車的紀錄</div>'}
+function showView(id){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.getElementById(id).classList.add("active");scrollTo(0,0)}
+renderAll();
+</script>
+</body>
+</html>
